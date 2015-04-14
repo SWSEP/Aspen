@@ -18,6 +18,8 @@
 #include "olcs.h"
 #include "olcGroup.h"
 #include "olcManager.h"
+#include "help/help.h"
+#include "help/HelpEntry.h"
 
 IOlcEntry::    IOlcEntry(const std::string &name, const std::string &help, FLAG flag, OLCDT dt)
 {
@@ -160,7 +162,7 @@ bool ParseVnum(Player* mobile, std::string& arg, VNUM & num, std::string& comp, 
 }
 
 //Used to call edit on the object.
-static inline bool DoEdit(Player* mobile, BaseObject* obj, IOlcEntry* entry, const std::string& input, OlcEditType type)
+static inline bool DoEdit(Player* mobile, void* obj, IOlcEntry* entry, const std::string& input, OlcEditType type)
 {
     switch(type)
         {
@@ -170,6 +172,8 @@ static inline bool DoEdit(Player* mobile, BaseObject* obj, IOlcEntry* entry, con
             return entry->HandleInput(mobile, (Living*)obj, input);
         case OlcEditType::Object:
             return entry->HandleInput(mobile, (StaticObject*)obj, input);
+		case OlcEditType::Help:
+			return entry->HandleInput(mobile, (HelpEntry*)obj, input);
         default:
             return false;
         }
@@ -177,7 +181,7 @@ static inline bool DoEdit(Player* mobile, BaseObject* obj, IOlcEntry* entry, con
     return false;
 }
 
-bool HandleEntry(Player* mobile, BaseObject* obj, OlcGroup* group, std::vector<std::string> &args, OlcEditType type)
+bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::string> &args, OlcEditType type)
 {
     IOlcEntry* entry = nullptr;
     std::string name;
@@ -207,6 +211,17 @@ bool HandleEntry(Player* mobile, BaseObject* obj, OlcGroup* group, std::vector<s
 		name = args[1];
 		entry = group->GetEntry(name);
 	}
+	if (type == OlcEditType::Help)
+	{
+		name = args[1];
+		entry = group->GetEntry(name);
+		if (!entry)
+		{
+			mobile->Message(MSG_ERROR, "That's not a valid argument.");
+			return false;
+		}
+	}
+
     if (entry == nullptr)
         {
             mobile->Message(MSG_ERROR, "That entry does not exist.");
@@ -217,7 +232,7 @@ bool HandleEntry(Player* mobile, BaseObject* obj, OlcGroup* group, std::vector<s
       //  {
             if (entry->GetInputType() == OLCDT::EDITOR)
                 {
-                    return DoEdit(mobile, obj, entry, "", OlcEditType::Room);
+                    return DoEdit(mobile, obj, entry, "", type);
                 }
         //    else
           //      {
@@ -238,7 +253,7 @@ bool HandleEntry(Player* mobile, BaseObject* obj, OlcGroup* group, std::vector<s
 				advance(it, 1);
 			}
             value = Explode(args, it);
-            if( DoEdit(mobile, obj, entry, value, OlcEditType::Room) )
+            if( DoEdit(mobile, obj, entry, value, type) )
 			{
 				mobile->Message(MSG_INFO, "OK.");
 			}

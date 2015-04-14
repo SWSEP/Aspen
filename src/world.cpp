@@ -30,6 +30,7 @@
 #include "eventManager.h"
 #include "calloutManager.h"
 #include "com_gen.h"
+#include "match.h"
 
 World* World::_ptr;
 World* World::GetPtr()
@@ -45,7 +46,7 @@ World::World()
 {
     _running = true;
     _chanid=1;
-	_pmanager = new PlayerManager();
+    _pmanager = new PlayerManager();
     _server = nullptr;
     _motd = nullptr;
     _banner = nullptr;
@@ -69,10 +70,10 @@ World::World()
 }
 World::~World()
 {
-	if (_pmanager)
-	    {
-		delete _pmanager;
-     	}
+    if (_pmanager)
+        {
+            delete _pmanager;
+        }
     if (_motd)
         {
             delete [] _motd;
@@ -139,7 +140,7 @@ void World::Copyover(Player* mobile)
     _users = _pmanager->GetPlayers();
     for (Player* person: *_users)
         {
-            if (person->GetSocket()->GetConnectionType() != ConnectionType::Game)
+            if (person->GetSocket()->GetConnectionType() != CON_Game)
                 {
                     person->Write("We're sorry, but we are currently rebooting; please come back again soon.\n");
                     person->GetSocket()->Kill();
@@ -283,7 +284,7 @@ Channel* World::FindChannel(const std::string &name)
 
     for (auto it: _channels)
         {
-            if ((it.second)->GetName()==name)
+            if (FullMatch((it.second)->GetName(),name))
                 {
                     return (it.second);
                 }
@@ -544,7 +545,7 @@ BOOL World::DoCommand(Player* mobile,std::string args)
 //check the built-in commands first, then contents, then location.
     for (auto it: *cptr)
         {
-            if ((it->GetName() == cmd)||(it->HasAlias(cmd, true)))
+            if ((FullMatch(it->GetName(),cmd))||(it->HasAlias(cmd, true)))
                 {
                     if (!mobile->HasAccess(it->GetAccess()))
                         {
@@ -568,7 +569,7 @@ BOOL World::DoCommand(Player* mobile,std::string args)
             cptr = location->commands.GetPtr();
             for (auto it: *cptr)
                 {
-                    if ((it->GetName() == cmd)||(it->HasAlias(cmd, true)))
+                    if (FullMatch(it->GetName(),cmd)||(it->HasAlias(cmd, true)))
                         {
                             if (!mobile->HasAccess(it->GetAccess()))
                                 {
@@ -624,7 +625,7 @@ Zone* World::GetZone(const std::string &name)
 
     for (auto it: _zones)
         {
-            if (name==it->GetName())
+            if (FullMatch(name,it->GetName()))
                 {
                     return it;
                 }

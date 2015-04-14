@@ -1,4 +1,5 @@
 #include "mud.h"
+#include "match.h"
 #include "conf.h"
 #include "player.h"
 #include "playerManager.h"
@@ -55,7 +56,7 @@ Player* PlayerManager::FindPlayer(const std::string &name) const
 {
     for (auto it: _users)
         {
-            if (it->GetName()==name)
+            if (FullMatch(it->GetName(),name))
                 {
                     return it;
                 }

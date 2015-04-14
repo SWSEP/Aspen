@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "baseObject.h"
 #include "objectContainer.h"
+#include "match.h"
 
 void InitializeBuilderCommands()
 {

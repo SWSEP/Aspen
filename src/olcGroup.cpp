@@ -4,7 +4,7 @@
 #include "conf.h"
 #include "olcGroup.h"
 #include "olc.h"
-
+#include "match.h"
 OlcGroup::OlcGroup(const std::string& comp)
 {
     _compname = comp;
@@ -13,11 +13,21 @@ OlcGroup::OlcGroup(const std::string& comp)
 OlcGroup::~OlcGroup()
 {
     std::vector<IOlcEntry*>::iterator it, itEnd;
+	RemoveInheritance();
 
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            delete (*it);
+			
+			/*try {
+				 throw  (*it);
+			     } 
+			catch (std::runtime_error e)
+			{
+				(*it) = nullptr;
+				continue;
+			}*/
+			delete (*it);
 			(*it) = nullptr;
         }
 }
@@ -33,7 +43,7 @@ IOlcEntry* OlcGroup::GetEntry(const std::string& name)
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if (name == (*it)->GetName())
+            if (FullMatch(name,(*it)->GetName()))
                 {
                     return (*it);
                 }
@@ -58,7 +68,21 @@ void OlcGroup::ListEntries(std::vector<IOlcEntry*>* entries)
         }
 }
 
-
+void OlcGroup::RemoveInheritance()
+{
+	std::vector<IOlcEntry*>::iterator it, itEnd;
+	
+	itEnd = _entries.end();
+	if (_inherit)
+	{
+		for (it = _entries.begin(); it != itEnd; ++it)
+		{
+			if ((*it) == _inherit->GetEntry((*it)->GetName()))
+				(*it) = nullptr;
+		}
+	}
+	_inherit = nullptr;
+}
 void OlcGroup::SetComponentName(const std::string& comp)
 {
     _compname = comp;

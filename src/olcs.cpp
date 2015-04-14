@@ -6,9 +6,14 @@
 #include "entity.h"
 #include "baseObject.h"
 #include "npc.h"
+#include "help/help.h"
 
 BOOL InitializeOlcs()
 {
+	if (!InitializeHelpOlcs())
+	{
+		return false;
+	}
     if (!InitializeBaseObjectOlcs())
         {
             return false;

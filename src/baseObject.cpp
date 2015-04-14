@@ -11,6 +11,7 @@
 #include "editor.h"
 #include "component.h"
 #include "eventargs.h"
+#include "match.h"
 
 BaseObject::BaseObject()
 {
@@ -145,7 +146,7 @@ bool BaseObject::HasComponent(const std::string &name)
             itEnd = _components->end();
             for (it = _components->begin(); it != itEnd; ++it)
                 {
-                    if ((*it)->GetMeta()->GetName()==name)
+                    if (FullMatch((*it)->GetMeta()->GetName(),name))
                         {
                             return true;
                         }
@@ -163,7 +164,7 @@ Component* BaseObject::GetComponent(const std::string &name)
             itEnd = _components->end();
             for (it = _components->begin(); it != itEnd; ++it)
                 {
-                    if ((*it)->GetMeta()->GetName()==name)
+                    if (FullMatch((*it)->GetMeta()->GetName(),name))
                         {
                             return (*it);
                         }
@@ -209,7 +210,7 @@ BOOL BaseObject::AliasExists(const std::string & name)
             itEnd = _aliases->end();
             for (it = _aliases->begin(); it != itEnd; ++it)
                 {
-                    if ((*it) == name)
+                    if (FullMatch((*it),name))
                         {
                             return true;
                         }

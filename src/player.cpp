@@ -11,6 +11,7 @@
 #include <sstream>
 #include <functional>
 #include "mud.h"
+#include "match.h"
 #include "conf.h"
 #include "player.h"
 #include "event.h"
@@ -114,10 +115,10 @@ void Player::Serialize(TiXmlElement* root)
             for (Option* opt:*_config)
                 {
                     ometa = opt->GetMeta();
-               /*     if (ometa->GetValue() == opt->GetValue())
-                        {
-                            continue;
-                        }*/
+                    /*     if (ometa->GetValue() == opt->GetValue())
+                             {
+                                 continue;
+                             }*/
                     TiXmlElement* option = new TiXmlElement("option");
                     name =/* OptionSectionToString(ometa->GetSection()) + "." +*/ ometa->GetName();
                     option->SetAttribute("name", name.c_str());
@@ -132,10 +133,10 @@ void Player::Serialize(TiXmlElement* root)
     root->SetAttribute("rank", _rank);
     root->SetAttribute("pflag", _pflag);
     Living::Serialize(root);
-/*	delete option;
-	delete options;
-	delete timeinfo;
-	delete password;*/
+    /*	delete option;
+    	delete options;
+    	delete timeinfo;
+    	delete password;*/
 }
 void Player::Deserialize(TiXmlElement* root)
 {
@@ -319,20 +320,20 @@ void Player::EnterGame(BOOL quiet)
     World* world = World::GetPtr();
     ObjectManager* omanager = world->GetObjectManager();
     ObjectContainer* location = nullptr;
-
-    Living::EnterGame();
-//add the player to the users list:
-    world->GetPlayerManager()->AddPlayer(this);
-//move the player if it doesn't already have a location
     location = GetLocation();
     if (location == nullptr)
         {
             MoveTo(omanager->GetRoom(ROOM_START));
+            location = GetLocation();
         }
     else
         {
             location->ObjectEnter(this);
         }
+
+    Living::EnterGame();
+//add the player to the users list:
+    world->GetPlayerManager()->AddPlayer(this);
 //if there were password attempts, tell the player.
     if (_invalidPassword)
         {
@@ -473,7 +474,7 @@ Option* Player::GetOption(const std::string &option) const
 {
     for (Option* opt:*_config)
         {
-            if (opt->GetMeta()->GetName() == option)
+            if (FullMatch(opt->GetMeta()->GetName(),option))
                 {
                     return opt;
                 }
@@ -486,7 +487,7 @@ BOOL Player::OptionExists(const std::string &option) const
 {
     for (Option* opt: *_config)
         {
-            if (opt->GetMeta()->GetName() == option)
+            if (FullMatch(opt->GetMeta()->GetName(), option))
                 {
                     return true;
                 }

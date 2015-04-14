@@ -5,6 +5,7 @@
 #include "com_wiz.h"
 #include "com_builder.h"
 #include "com_movement.h"
+#include "match.h"
 
 static bool chook_comp(CommandHook* a, CommandHook* b)
 {
@@ -49,7 +50,7 @@ BOOL Command::RemoveAlias(const std::string &name)
     itEnd=_aliases.end();
     for (it = _aliases.begin(); it != itEnd; ++it)
         {
-            if ((*it) == name)
+            if (FullMatch((*it), name))
                 {
                     _aliases.erase(it);
                     return true;
@@ -62,7 +63,7 @@ BOOL Command::HasAlias(const std::string &name, BOOL partialMatch)
 {
     for (auto it: _aliases)
         {
-            if (it == name)
+            if (FullMatch(it,name))
                 {
                     return true;
                 }
@@ -214,7 +215,7 @@ BOOL Commandable::RemoveCommand(const std::string &name)
     itEnd = _commands.end();
     for (it = _commands.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch((*it)->GetName(),name))
                 {
                     _commands.erase(it);
                     return true;
@@ -227,7 +228,7 @@ BOOL Commandable::CommandExists(const std::string &name)
 {
     for (auto it: _commands)
         {
-            if (it->GetName() == name)
+            if (FullMatch(it->GetName(), name))
                 {
                     return true;
                 }

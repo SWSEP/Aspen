@@ -8,6 +8,7 @@
 #include "world.h"
 #include "utils.h"
 #include "option.h"
+#include "match.h"
 
 void InitializeChannels()
 {

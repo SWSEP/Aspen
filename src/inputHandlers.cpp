@@ -3,6 +3,7 @@
 #include "socket.h"
 #include "utils.h"
 #include "inputHandlers.h"
+#include "match.h"
 
 YesNoHandler::YesNoHandler(YESNOCB cb, void* arg):InputHandle()
 {
@@ -14,7 +15,7 @@ void YesNoHandler::Input(void* arg, const std::string &input)
 {
     std::string text = input;
     Lower(text);
-    if (text == "y" || text == "yes")
+    if (FullMatch(text,"y") || FullMatch(text,"yes"))
         {
             _cb((Socket*)arg, true, _arg);
         }

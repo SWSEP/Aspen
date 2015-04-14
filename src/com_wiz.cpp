@@ -206,7 +206,7 @@ BOOL CMDSilence::Execute(const std::string &verb, Player* mobile,std::vector<std
             mobile->Message(MSG_ERROR, "Could not find the specified player.");
             return false;
         }
-    if (targ->HasAccess(RANK_ADMIN) || targ->HasAccess(RANK_GOD))
+    if (targ->HasAccess(RANK_ADMIN) || targ->HasAccess(RANK_GOD) || targ->HasAccess(RANK_BUILDER))
         {
             mobile->Message(MSG_ERROR, "That player should be demoted before you try to silence them.");
             return false;

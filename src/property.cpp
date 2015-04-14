@@ -1,5 +1,6 @@
 #include <tinyxml.h>
 #include "mud.h"
+#include "match.h"
 #include "conf.h"
 #include "property.h"
 #include "variant.h"
@@ -153,7 +154,7 @@ Property* Property::FindProperty(const std::string &name)
             itEnd = _children.end();
             for (it = _children.begin(); it != itEnd; ++it)
                 {
-                    if ( (*it)->_name == childName )
+                    if ( FullMatch( (*it)->_name,childName) )
                         {
                             return ( (*it)->FindProperty(newName) );
                         }
@@ -163,7 +164,7 @@ Property* Property::FindProperty(const std::string &name)
     itEnd = _children.end();
     for (it = _children.begin(); it != itEnd; ++it)
         {
-            if ( (*it)->_name == name )
+            if ( FullMatch((*it)->_name, name) )
                 {
                     return *it;
                 }

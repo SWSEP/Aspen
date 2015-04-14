@@ -15,6 +15,8 @@
 #include "event.h"
 #include "utils.h"
 #include "serializationHelpers.h"
+#include "serializationHelpers.hpp"
+#include "match.h"
 
 static int zone_saves;
 
@@ -323,12 +325,11 @@ Npc* Zone::CreateNpc(VNUM num, Room* origin)
     return ret;
 }
 void Zone::CalculateVnumRanges()
-
 {
     int i = 0; //for counter
 
 //find all empty virtual objects.
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (!VirtualExists(i))
                 {
@@ -341,7 +342,7 @@ void Zone::CalculateVnumRanges()
         }
 
 //find all empty room objects.
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (!RoomExists(i))
                 {
@@ -354,7 +355,7 @@ void Zone::CalculateVnumRanges()
         }
 
 //find all empty npc objects
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (_mnums.size() == VNUMKEEP)
                 {
@@ -507,6 +508,21 @@ BOOL Zone::SaveZones()
         }
     delete zones;
     return true;
+}
+
+BOOL Zone::SaveZone()
+{
+	std::string path;
+
+	TiXmlDocument doc;
+	TiXmlElement* zelement = new TiXmlElement("zone");
+	TiXmlDeclaration *decl = new TiXmlDeclaration("1.0", "", "");
+	doc.LinkEndChild(decl);
+	Serialize(zelement);
+	doc.LinkEndChild(zelement);
+	path = AREA_DIR + GetName();
+	Lower(path);
+	doc.SaveFile(path.c_str());
 }
 BOOL Zone::LoadZones()
 {

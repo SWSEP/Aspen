@@ -374,7 +374,7 @@ BOOL CMDCommands::Execute(const std::string &verb, Player* mobile,std::vector<st
 			return true;
         }
 
-    if (args[0] == "god")
+    if (FullMatch(args[0], "god"))
         {
             if (!mobile->HasAccess(RANK_GOD))
                 {
@@ -386,7 +386,7 @@ BOOL CMDCommands::Execute(const std::string &verb, Player* mobile,std::vector<st
                     GetCommands(mobile, commands, CommandType::God);
                 }
         }
-    else if (args[0] == "admin")
+    else if (FullMatch(args[0],"admin"))
         {
             if (!mobile->HasAccess(RANK_ADMIN))
                 {
@@ -398,7 +398,7 @@ BOOL CMDCommands::Execute(const std::string &verb, Player* mobile,std::vector<st
                     GetCommands(mobile, commands, CommandType::Admin);
                 }
         }
-    else if (args[0] == "builder")
+    else if (FullMatch(args[0],"builder"))
         {
             if (!mobile->HasAccess(RANK_BUILDER))
                 {
@@ -410,27 +410,27 @@ BOOL CMDCommands::Execute(const std::string &verb, Player* mobile,std::vector<st
                     GetCommands(mobile, commands, CommandType::Builder);
                 }
         }
-    else if (args[0] == "misc")
+    else if (FullMatch(args[0],"misc"))
         {
             GetCommands(mobile, commands, CommandType::Misc);
         }
-    else if (args[0] == "information")
+	else if (FullMatch(args[0],"information"))
         {
             GetCommands(mobile, commands, CommandType::Information);
         }
-    else if (args[0] == "object")
+    else if (FullMatch(args[0],"object"))
         {
             GetCommands(mobile, commands, CommandType::Object);
         }
-    else if (args[0] == "movement")
+    else if (FullMatch(args[0],"movement"))
         {
             GetCommands(mobile, commands, CommandType::Movement);
         }
-    else if (args[0] == "social")
+    else if (FullMatch(args[0],"social"))
         {
             GetCommands(mobile, commands, CommandType::Social);
         }
-    else if (args[0] == "communication")
+    else if (FullMatch(args[0],"communication"))
         {
             GetCommands(mobile, commands, CommandType::Channel);
             GetCommands(mobile, commands, CommandType::Communication);
