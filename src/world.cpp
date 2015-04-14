@@ -45,7 +45,7 @@ World::World()
 {
     _running = true;
     _chanid=1;
-	_pmanager = new PlayerManager();
+    _pmanager = new PlayerManager();
     _server = nullptr;
     _motd = nullptr;
     _banner = nullptr;
@@ -69,10 +69,10 @@ World::World()
 }
 World::~World()
 {
-	if (_pmanager)
-	    {
-		delete _pmanager;
-     	}
+    if (_pmanager)
+        {
+            delete _pmanager;
+        }
     if (_motd)
         {
             delete [] _motd;
@@ -139,7 +139,7 @@ void World::Copyover(Player* mobile)
     _users = _pmanager->GetPlayers();
     for (Player* person: *_users)
         {
-            if (person->GetSocket()->GetConnectionType() != ConnectionType::Game)
+            if (person->GetSocket()->GetConnectionType() != CON_Game)
                 {
                     person->Write("We're sorry, but we are currently rebooting; please come back again soon.\n");
                     person->GetSocket()->Kill();

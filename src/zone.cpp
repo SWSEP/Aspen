@@ -22,8 +22,6 @@ Zone::Zone()
 {
     _vnumrange.min = 0;
     _vnumrange.max = 0;
-    _goldbonus = 0;
-    _expbonus = 0;
     _resetfreq = 240;
     _resetmsg = "With a pop, the area resets around you.";
     _lastreset=time(NULL);
@@ -323,12 +321,11 @@ Npc* Zone::CreateNpc(VNUM num, Room* origin)
     return ret;
 }
 void Zone::CalculateVnumRanges()
-
 {
     int i = 0; //for counter
 
 //find all empty virtual objects.
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (!VirtualExists(i))
                 {
@@ -341,7 +338,7 @@ void Zone::CalculateVnumRanges()
         }
 
 //find all empty room objects.
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (!RoomExists(i))
                 {
@@ -354,7 +351,7 @@ void Zone::CalculateVnumRanges()
         }
 
 //find all empty npc objects
-    for (i = _vnumrange.min; i != _vnumrange.max; ++i)
+    for (i = _vnumrange.max; i >= _vnumrange.min; i--)
         {
             if (_mnums.size() == VNUMKEEP)
                 {
@@ -379,8 +376,6 @@ void Zone::Serialize(TiXmlElement* root)
     root->SetAttribute("opened", _opened);
     root->SetAttribute("resetmsg", _resetmsg.c_str());
     root->SetAttribute("resetfreq", _resetfreq);
-    root->SetAttribute("expbonus", _expbonus);
-    root->SetAttribute("goldbonus", _goldbonus);
     root->SetAttribute("minvnum", _vnumrange.min);
     root->SetAttribute("maxvnum", _vnumrange.max);
 
@@ -402,8 +397,6 @@ void Zone::Deserialize(TiXmlElement* zone)
     _opened = u;
     _resetmsg = zone->Attribute("resetmsg");
     zone->Attribute("resetfreq", &_resetfreq);
-    zone->Attribute("expbonus", &_expbonus);
-    zone->Attribute("goldbonus", &_goldbonus);
     zone->Attribute("minvnum", &(_vnumrange.min));
     zone->Attribute("maxvnum", &(_vnumrange.max));
 
