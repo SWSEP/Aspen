@@ -19,6 +19,7 @@ public:
     void AddEntry(IOlcEntry* entry);
     IOlcEntry* GetEntry(const std::string& name);
     void ListEntries(std::vector<IOlcEntry*>* entries);
+	void RemoveInheritance();
     void SetComponentName(const std::string& comp);
     std::string GetComponentName() const;
     OlcGroup* GetInheritance();

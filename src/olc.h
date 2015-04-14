@@ -22,7 +22,8 @@ enum class OlcEditType
 {
     Room,
     Object,
-    Npc
+    Npc,
+	Help
 };
 enum class OLCGROUP
 {
@@ -32,7 +33,8 @@ enum class OLCGROUP
     Entity,
     ROOM,
     NPC,
-    COMPONENT
+    COMPONENT,
+	HELP
 };
 enum class OLCDT
 {
@@ -215,7 +217,7 @@ Handles an OLC entry after we've found component/vnum etc.
 \param The args passed to the edit command.
 \param the type of object being edited.
 */
-bool HandleEntry(Player* mobile, BaseObject* obj, OlcGroup* group, std::vector<std::string> &args, OlcEditType type);
+bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::string> &args, OlcEditType type);
 
 class CMDPEdit:public Command
 {

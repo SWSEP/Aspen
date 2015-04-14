@@ -104,6 +104,7 @@ public:
     virtual void Deserialize(TiXmlElement* zone);
 
     static BOOL SaveZones();
+	BOOL SaveZone();
     static BOOL LoadZones();
     static EVENT(Autosave);
     static EVENT(Shutdown);

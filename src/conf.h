@@ -15,7 +15,7 @@
 #define LOG_MAXSIZE 1024*1024 //1mb
 #define LOG_MAXFILES 10 //maximum number of logs to keep.
 #define MIN_LOG_LEVEL (LOG_LEVEL)WARN //the minimum level of logging that will be written to console.
-#define MUD_NAME "Aspen Mud" //name of your mud.
+#define MUD_NAME "Star Wars: The Saga Edition Project" //name of your mud.
 #define MAX_CHAN_HISTORY_LENGTH 20 //the maximum number of entries channels will log.
 #define GAME_IDLE_TIME (60*60) //the amount of time someone will be able to idle before they are kicked.
 #define LOGIN_IDLE_TIME (30) //the amount of time someone will be able to idle at login.
@@ -82,7 +82,7 @@
 #define MF_ASSIST 1<<7 //assist other mobs fighting.
 #define MF_NOKILL 1<<8 //mob can't be killed.
 
-#define VNUMKEEP 100 //how many spare vnums to store.
+#define VNUMKEEP 10000 //how many spare vnums to store.
 //logger levels
 enum LOG_LEVEL {INFORM,WARN,ERR,CRIT,SCRIPT, PLAYER, CONNECTION};
 //Message types:
