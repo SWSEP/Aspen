@@ -15,6 +15,7 @@
 #include "conf.h"
 #include "olcGroup.h"
 #include "olc.h"
+#include "match.h"
 
 class IComponentMeta
 {
@@ -63,7 +64,7 @@ public:
         itEnd = _dependencies.end();
         for (it = _dependencies.begin(); it != itEnd; ++it)
             {
-                if ((*it) == name)
+                if (FullMatch((*it),name))
                     {
                         return true;
                     }

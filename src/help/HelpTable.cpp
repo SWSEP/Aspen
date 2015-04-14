@@ -1,6 +1,7 @@
 #include "../mud.h"
 #include "../conf.h"
 #include "../world.h"
+#include "../match.h"
 #include "../player.h"
 #include "HelpTable.h"
 #include "HelpEntry.h"
@@ -42,14 +43,15 @@ void HelpTable::Load()
         }
     root = node->ToElement();
 
-    node=root->FirstChild("entry");
-    if (!node)
-        {
-            return;
-        }
+   // node=root->FirstChild("entry");
+   // if (!node)
+     //   {
+       //     return;
+        //}
     element = node->ToElement();
     for (node = element->FirstChild(); node; node = node->NextSibling())
         {
+			element = node->ToElement();
             entry = new HelpEntry();
             entry->Deserialize(element);
             _entries.push_back(entry);
@@ -67,7 +69,7 @@ void HelpTable::Save()
         {
             it->Serialize(root);
         }
-
+	doc.LinkEndChild(root);
     doc.SaveFile(HELP_FILE);
 }
 
@@ -83,7 +85,7 @@ BOOL HelpTable::AddEntry(HelpEntry* entry)
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == entry->GetName())
+            if (FullMatch((*it)->GetName(),entry->GetName()))
                 {
                     return false;
                 }
@@ -99,7 +101,7 @@ BOOL HelpTable::RemoveEntry(const std::string &name)
     itEnd = it2End = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch((*it)->GetName(),name))
                 {
                     for (it2 = _entries.begin(); it2 != it2End; ++it2)
                         {
@@ -127,7 +129,7 @@ BOOL HelpTable::EntryExists(const std::string &name)
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch(name, (*it)->GetName()))
                 {
                     return true;
                 }
@@ -147,7 +149,7 @@ HelpEntry* HelpTable::GetEntry(const std::string &name)
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch((*it)->GetName(),name))
                 {
                     return (*it);
                 }
@@ -162,7 +164,7 @@ BOOL HelpTable::ShowEntry(const std::string &name, Player* mobile)
     itEnd = _entries.end();
     for (it = _entries.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch((*it)->GetName(), name))
                 {
                     mobile->Message(MSG_INFO, (*it)->GetData());
                     return true;

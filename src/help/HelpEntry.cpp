@@ -1,6 +1,7 @@
 #include "../mud.h"
 #include "../conf.h"
 #include "../utils.h"
+#include "../match.h"
 #include "HelpEntry.h"
 #include <string>
 #include <vector>
@@ -96,7 +97,7 @@ BOOL HelpEntry::SeeAlsoExists(const std::string &name)
 {
     for (auto it: _seeAlso)
         {
-            if (it->GetName() == name)
+            if (FullMatch(it->GetName(),name))
                 {
                     return true;
                 }
@@ -121,7 +122,7 @@ BOOL HelpEntry::RemoveSeeAlso(const std::string &name)
     itEnd = _seeAlso.end();
     for (it = _seeAlso.begin(); it != itEnd; ++it)
         {
-            if ((*it)->GetName() == name)
+            if (FullMatch((*it)->GetName(), name))
                 {
                     _seeAlso.erase(it);
                     return true;

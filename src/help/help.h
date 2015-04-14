@@ -26,9 +26,22 @@ public:
     EVENT(EditorLoad);
     EVENT(EditorSave);
 };
+class CMDHcreate :public Command
+{
+public:
+	CMDHcreate();
+	BOOL Execute(const std::string &verb, Player *mobile, std::vector<std::string> &args, int subcmd);
+};
 
+class CMDHSave :public Command
+{
+public:
+	CMDHSave();
+	BOOL Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd);
+};
 EVENT(CleanupHelp);
 #endif
 
 BOOL InitializeHelp();
+bool InitializeHelpOlcs();
 #endif
