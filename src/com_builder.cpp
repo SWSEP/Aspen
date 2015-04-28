@@ -22,7 +22,7 @@ void InitializeBuilderCommands()
     world->WriteLog("Initializing builder commands.");
     world->commands.AddCommand(new CMDZlist());
     world->commands.AddCommand(new CMDRlist());
-    world->commands.AddCommand(new CMDDig());
+    //world->commands.AddCommand(new CMDDig());
     world->commands.AddCommand(new CMDVCreate());
     world->commands.AddCommand(new CMDVList());
     world->commands.AddCommand(new CMDMCreate());
@@ -31,8 +31,10 @@ void InitializeBuilderCommands()
     world->commands.AddCommand(new CMDAddComponent());
     world->commands.AddCommand(new CMDGoto());
     world->commands.AddCommand(new CMDZcreate());
-    world->commands.AddCommand(new CMDAStats());
-    world->commands.AddCommand(new CMDRcreate());
+	world->commands.AddCommand(new CMDAStats());
+	world->commands.AddCommand(new CMDRcreate());
+	world->commands.AddCommand(new CMDAddTile());
+	world->commands.AddCommand(new CMDDeleteTile());
 }
 
 //zlist
@@ -40,7 +42,7 @@ CMDZlist::CMDZlist()
 {
     SetAccess(RANK_BUILDER);
     SetName("zlist");
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 void CMDZlist::Syntax(Player* mobile, int subcmd) const
 {
@@ -75,7 +77,7 @@ CMDRlist::CMDRlist()
 {
     SetName("rlist");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 void CMDRlist::Syntax(Player* mobile, int subcmd) const
 {
@@ -108,7 +110,7 @@ BOOL CMDRlist::Execute(const std::string &verb, Player* mobile,std::vector<std::
     zone->GetRooms(&rooms);
     for (auto it: rooms)
         {
-            st << "[" << it->GetOnum() << "] " << it->GetName() << "\n";
+            st << "[" << it->GetOnum() << "] " << it->GetName() <<  "\n";
         }
     st << "Found " << (int)rooms.size() << ((int)rooms.size()==0?"room":"rooms") << ".\n";
     mobile->Message(MSG_LIST,st.str());
@@ -120,7 +122,7 @@ CMDDig::CMDDig()
 {
     SetName("dig");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 void CMDDig::Syntax(Player* mobile, int subcmd) const
 {
@@ -274,15 +276,16 @@ BOOL CMDDig::Execute(const std::string &verb, Player* mobile,std::vector<std::st
         }
 
     mobile->Message(MSG_INFO, st.str());
+    Zone::SaveZones();
     return true;
 }
 
 CMDAStats::CMDAStats()
 {
     SetName("astat");
-    AddAlias("zstat");
+	AddAlias("zstat");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDAStats::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -311,15 +314,15 @@ std::string CMDAStats::Stats(Player* mobile, Zone* area)
     std::stringstream st;
     st << area->GetName() << std::endl;
     st << Repeat('-', 80) << std::endl;
-    st << "Range: " << "Minimum Vnum: " << area->GetMinVnum() << " Maximum Vnum: " << area->GetMaxVnum() << std::endl;
-    return st.str();
+	st << "Range: " << "Minimum Vnum: " << area->GetMinVnum() << " Maximum Vnum: " << area->GetMaxVnum() << std::endl;
+	return st.str();
 }
 
 CMDVCreate::CMDVCreate()
 {
     SetAccess(RANK_BUILDER);
-    SetName("vcreate");
-    SetType(CommandType::Builder);
+	SetName("vcreate"); 
+	SetType(CommandType::Builder);
 }
 BOOL CMDVCreate::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -354,7 +357,7 @@ BOOL CMDVCreate::Execute(const std::string &verb, Player* mobile,std::vector<std
 
     st << "Created static object " << vobj->GetOnum() << ".";
     mobile->Message(MSG_INFO, st.str());
-    Zone::SaveZones();
+	zone->SaveZone();
     return true;
 }
 
@@ -362,7 +365,7 @@ CMDVList::CMDVList()
 {
     SetAccess(RANK_BUILDER);
     SetName("vlist");
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDVList::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -402,7 +405,7 @@ BOOL CMDVList::Execute(const std::string &verb, Player* mobile,std::vector<std::
         }
 
     itEnd = objects.end();
-    st << left << setw(10) << "vnum" << right << "name" << Repeat(" ", 20) << "Zone: " << zone->GetName() << endl;
+	st << left << setw(10) << "vnum" << right << "name" << Repeat(" ", 20) << "Zone: " << zone->GetName() << endl;
     st << Repeat('-', 80) << endl;
     for (it = objects.begin(); it != itEnd; ++it)
         {
@@ -418,7 +421,7 @@ CMDMCreate::CMDMCreate()
 {
     SetAccess(RANK_BUILDER);
     SetName("mcreate");
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDMCreate::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -460,7 +463,7 @@ CMDMList::CMDMList()
 {
     SetAccess(RANK_BUILDER);
     SetName("mlist");
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDMList::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -515,7 +518,7 @@ CMDMLoad::CMDMLoad()
 {
     SetName("mload");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDMLoad::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -560,6 +563,16 @@ BOOL CMDMLoad::Execute(const std::string &verb, Player* mobile,std::vector<std::
             mobile->Message(MSG_ERROR, "That NPC doesn't exist in the specified zone.");
             return false;
         }
+	if (mobile->GetTile())
+	{
+		npc->MoveTo(mobile->GetTile());
+	} 
+	else
+	{
+		Room* moveto = (Room*)location;
+		npc->MoveTo(moveto->GetFirstAvailable());
+	}
+
 
     mobile->Message(MSG_INFO, "Npc created.");
     return true;
@@ -570,7 +583,7 @@ CMDAddComponent::CMDAddComponent()
     SetName("addcomponent");
     AddAlias("adc");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDAddComponent::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -652,7 +665,7 @@ CMDGoto::CMDGoto()
 {
     SetName("goto");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDGoto::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -660,13 +673,20 @@ BOOL CMDGoto::Execute(const std::string &verb, Player* mobile,std::vector<std::s
     ObjectManager* omanager = world->GetObjectManager();
     Room* room = nullptr;
     VNUM toid = 0;
+	int x = 0, y = 0;
 
-    if (args.size() != 1)
+    if (args.size() < 1)
         {
-            mobile->Message(MSG_ERROR,"Syntax: goto <room number> teleports you to that room.\n");
+            mobile->Message(MSG_ERROR,"Syntax: goto <tile key> OR goto <room number> OR goto <room number> <tilekey>.\n");
             return false;
         }
 
+	if (mobile->GetTile()->GetParent()->TileExists(args[0]))
+	{
+		mobile->MoveTo(mobile->GetTile()->GetParent()->GetTile(args[0]));
+		mobile->Message(MSG_INFO, mobile->GetTile()->GetParent()->DoLook(mobile));
+		return true;
+	}
     toid = atoi(args[0].c_str());
     if (!toid)
         {
@@ -680,8 +700,37 @@ BOOL CMDGoto::Execute(const std::string &verb, Player* mobile,std::vector<std::s
             mobile->Message(MSG_ERROR, "That rnum does not exist.");
             return false;
         }
+	if (args.size() == 1)
+	{
+		mobile->MoveTo(room->GetFirstAvailable());
+		mobile->Message(MSG_INFO, room->DoLook(mobile));
+		return true;
+	}
+	else
+	{
+		KeyToCoords(args[1], x, y);
 
-    mobile->MoveTo(room);
+		if (x < 0 || y < 0)
+		{
+			mobile->Message(MSG_ERROR, "You cannot enter negative values for a roomtile.");
+			return false;
+		}
+
+		/*if (!isnum(args[1].c_str()) || !isnum(args[2].c_str()))
+		{
+			mobile->Message(MSG_ERROR, "You must use positive numbers for you x and y values.");
+			return false;
+		}*/
+	}
+	std::string key = args[1];
+
+		if (!room->TileExists(key))
+		{
+			mobile->Message(MSG_ERROR, "That tile in the room doesn't exist.");
+			return false;
+		}
+	
+    mobile->MoveTo(room->GetTile(key));
     mobile->Message(MSG_INFO, room->DoLook(mobile));
 
     return true;
@@ -691,7 +740,7 @@ CMDZcreate::CMDZcreate()
 {
     SetName("zcreate");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDZcreate::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -751,42 +800,200 @@ BOOL CMDZcreate::Execute(const std::string &verb, Player* mobile,std::vector<std
 
 CMDRcreate::CMDRcreate()
 {
-    SetAccess(RANK_BUILDER);
-    SetName("rcreate");
-    SetType(CommandType::Builder);
+	SetAccess(RANK_BUILDER);
+	SetName("rcreate");
+	SetType(CommandType::Builder);
 }
 BOOL CMDRcreate::Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd)
 {
-    Zone* zone = NULL;
-    ObjectContainer* location = NULL;
-    Room* room = NULL;
-    std::stringstream st;
+	Zone* zone = NULL;
+	ObjectContainer* location = NULL;
+	Room* room = NULL;
+	std::stringstream st;
+	int x, y;
+	location = mobile->GetLocation();
+	if (!location || !location->IsRoom())
+	{
+		mobile->Message(MSG_ERROR, "You are not in a room.");
+		return false;
+	}
 
-    location = mobile->GetLocation();
-    if (!location || !location->IsRoom())
-        {
-            mobile->Message(MSG_ERROR, "You are not in a room.");
-            return false;
-        }
+	zone = location->GetZone();
+	if (!zone)
+	{
+		mobile->Message(MSG_ERROR, "The room you are in does not have a zone.");
+		return false;
+	}
 
-    zone = location->GetZone();
-    if (!zone)
-        {
-            mobile->Message(MSG_ERROR, "The room you are in does not have a zone.");
-            return false;
-        }
+	if (args[0].empty() || args[1].empty())
+	{
+		mobile->Message(MSG_ERROR, "Syntax: rcreate <x maximum> <y maximum>");
+		return false;	
+	}
 
-    try
-        {
-            room = zone->AddRoom();
-        }
-    catch (std::runtime_error e)
-        {
-            mobile->Message(MSG_ERROR, e.what());
-            return false;
-        }
+	if (tonum(args[0].c_str()) < 1 || tonum(args[1].c_str()) < 1)
+	{
+		mobile->Message(MSG_ERROR, "You cannot use 0 or negative numbers to create rooms.");
+		return false;
+	}
 
-    st << "Created Room " << room->GetOnum() << ".";
-    mobile->Message(MSG_INFO, st.str());
-    return true;
+	try
+	{
+		room = zone->AddRoom();
+	}
+	catch (std::runtime_error e)
+	{
+		mobile->Message(MSG_ERROR, e.what());
+		return false;
+	}
+		x = tonum(args[0].c_str());
+		y = tonum(args[1].c_str());
+		room->CreateTileMap(x, y);
+		
+	st << "Created Room " << room->GetOnum() << " [" << std::to_string(x) << "x" << std::to_string(y) << "]";
+	
+	mobile->Message(MSG_INFO, st.str());
+	return true;
+}
+
+CMDAddTile::CMDAddTile()
+{
+	SetAccess(RANK_BUILDER);
+	SetName("addtile");
+	SetType(CommandType::Builder);
+}
+
+BOOL CMDAddTile::Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd)
+{
+	Room* room = (Room*)mobile->GetLocation();
+	RoomTile* newtile = nullptr;
+	int x, y;
+
+	if (args.empty())
+	{
+		mobile->Message(MSG_ERROR, "Syntax: addtile [x coordinate]x[y coordinate] OR addtile [direction]");
+		return false;
+	}
+	if (!room || !mobile->GetTile())
+	{
+		mobile->Message(MSG_ERROR, "You are not in a room or roomtile.");
+		return false;
+	}
+	
+/*	if (args[0].find("x") == std::string::npos || StringToDirection(args[0]) == ExitDirection::nowhere )
+	{
+		mobile->Message(MSG_ERROR, "Syntax: addtile [x coordinate]x[y coordinate] OR addtile [direction]");
+		return false;
+	}*/
+
+	if (KeyToCoords(args[0], x, y) && StringToDirection(args[0]) == ExitDirection::nowhere)
+	{
+		if (x < 0 || y < 0)
+		{
+			mobile->Message(MSG_ERROR, "Your x or y coordinates cannot be below zero.");
+			return false;
+		}
+
+		point coords = point(x, y, 1);
+		
+		if (room->TileExists(coords))
+		{
+			mobile->Message(MSG_ERROR, "That tile already exists!");
+			return false;
+		}
+
+		newtile = new RoomTile(TerrainList[(int)TerrainType::DEFAULT], room, coords, LightLevel::LIGHT_NORMAL);
+		room->AddTile(newtile);
+		room->FormatTileMap();
+		mobile->Message(MSG_INFO, "You create a new tile at [" + newtile->GetKey() + "].");
+		return true;
+	}
+
+	if (StringToDirection(args[0]) != ExitDirection::nowhere)
+	{
+		if (StringToDirection(args[0]) == ExitDirection::up || StringToDirection(args[0]) == ExitDirection::down)
+		{
+			mobile->Message(MSG_ERROR, "You cannot create a tile within a room in that direction.");
+			return false;
+		}
+
+		if (!mobile->GetTile()->CanAddAdjacent(StringToDirection(args[0])))
+		{
+			if (mobile->GetTile()->AdjacentExists(StringToDirection(args[0])))
+			{
+				mobile->Message(MSG_ERROR, "A tile already exists in that direction.");
+				return false;
+			}
+			mobile->Message(MSG_ERROR, "You cannot create a tile with a negative value.");
+			return false;
+		}
+		
+		point coords = GetDirectionCoords(StringToDirection(args[0]), mobile->GetTile()->GetCoords());
+		newtile = new RoomTile(TerrainList[(int)TerrainType::DEFAULT], room, coords, LightLevel::LIGHT_NORMAL);
+		room->AddTile(newtile);
+		room->FormatTileMap();
+		mobile->Message(MSG_INFO, "You have created a new tile " + DirectionString[(int)StringToDirection(args[0])] + " from here at [" + newtile->GetKey() + "].");
+		return true;
+	}
+	return false;
+}
+
+CMDDeleteTile::CMDDeleteTile()
+{
+	SetName("deletetile");
+	SetAccess(RANK_BUILDER);
+	SetType(CommandType::Builder);
+}
+
+BOOL CMDDeleteTile::Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd)
+{
+	Room* room = mobile->GetTile()->GetParent();
+	RoomTile* target = nullptr;
+
+	if (args.empty())
+	{
+		mobile->Message(MSG_ERROR, "deletetile <tile key> eg. deletetile 0x0");
+		return false;
+	}
+
+	if (!room)
+	{
+		mobile->Message(MSG_ERROR, "You are not in a room!");
+		return false;
+	}
+
+	if (!room->TileExists(args[0]))
+	{
+		mobile->Message(MSG_ERROR, "That tile doesn't exist!");
+		return false;
+	}
+
+	if (room->GetTileMap()->size() <= 1)
+	{
+		mobile->Message(MSG_ERROR, "You cannot delete the last tile in a room.");
+		return false;
+	}
+
+	target = room->GetTile(args[0]);
+
+	if (!target)
+	{
+		mobile->Message(MSG_ERROR, "There was an issue retrieving that tile.");
+		return false;
+	}
+
+	if (mobile->GetTile() == target)
+	{
+		room->RemoveTile(target->GetKey());
+		mobile->SetTile(nullptr); // Doing this so Entity::MoveTo() handles the move correctly;
+		mobile->MoveTo(room->GetFirstAvailable());
+		room->FormatTileMap();
+		mobile->Message(MSG_INFO, "You have deleted the tile at " + args[0]);
+		return true;
+	}
+
+	room->RemoveTile(target->GetKey());
+	room->FormatTileMap();
+	mobile->Message(MSG_INFO, "You have deleted the tile at " + args[0]);
+	return true;
 }

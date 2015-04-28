@@ -10,7 +10,6 @@
 #include "world.h"
 #include "utils.h"
 #include "calloutManager.h"
-#include "editor.h"
 
 void InitializeWizCommands()
 {
@@ -28,14 +27,13 @@ void InitializeWizCommands()
     world->commands.AddCommand(new CMDEcho());
     world->commands.AddCommand(new CMDSstatus());
     world->commands.AddCommand(new CMDForce());
-    world->commands.AddCommand(new CMDPaste());
 }
 
 CMDCopyover::CMDCopyover()
 {
     SetName("copyover");
     SetAccess(RANK_GOD);
-    SetType(CommandType::God);
+	SetType(CommandType::God);
 }
 BOOL CMDCopyover::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -49,7 +47,7 @@ CMDMkgod::CMDMkgod()
 {
     SetName("mkgod");
     SetAccess(RANK_GOD);
-    SetType(CommandType::God);
+	SetType(CommandType::God);
 }
 BOOL CMDMkgod::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -90,7 +88,7 @@ CMDMkbuilder::CMDMkbuilder()
 {
     SetName("mkbuilder");
     SetAccess(RANK_GOD);
-    SetType(CommandType::God);
+	SetType(CommandType::God);
 }
 BOOL CMDMkbuilder::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -131,7 +129,7 @@ CMDShutdown::CMDShutdown()
 {
     SetName("shutdown");
     SetAccess(RANK_GOD);
-    SetType(CommandType::God);
+	SetType(CommandType::God);
 }
 BOOL CMDShutdown::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -144,7 +142,7 @@ CMDBan::CMDBan()
 {
     SetName("ban");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDBan::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -188,7 +186,7 @@ CMDSilence::CMDSilence()
 {
     SetName("silence");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDSilence::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -232,7 +230,7 @@ CMDUnsilence::CMDUnsilence()
 {
     SetName("unsilence");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDUnsilence::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -271,7 +269,7 @@ CMDDisconnect::CMDDisconnect()
 {
     SetName("disconnect");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDDisconnect::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -311,7 +309,7 @@ CMDEcho::CMDEcho()
 {
     SetName("echo");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDEcho::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -341,7 +339,7 @@ CMDPdelete::CMDPdelete()
 {
     SetName("pdelete");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDPdelete::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -361,7 +359,7 @@ CMDSstatus::CMDSstatus()
     SetName("sstatus");
     AddAlias("sstat");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDSstatus::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -404,7 +402,7 @@ CMDForce::CMDForce()
 {
     SetName("force");
     SetAccess(RANK_ADMIN);
-    SetType(CommandType::Admin);
+	SetType(CommandType::Admin);
 }
 BOOL CMDForce::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
 {
@@ -440,47 +438,4 @@ BOOL CMDForce::Execute(const std::string &verb, Player* mobile,std::vector<std::
     command = Explode(args);
     target->GetSocket()->AddCommand(command);
     return true;
-}
-
-CMDPaste::CMDPaste()
-{
-    SetName("paste");
-    SetAccess(RANK_ADMIN);
-    SetType(CommandType::God);
-}
-BOOL CMDPaste::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args,int subcmd)
-{
-    std::vector<std::string> *lines = new std::vector<std::string>();
-
-    mobile->Message(MSG_INFO, "Entering edotir. Type a . on a blank line to finish.");
-    if (!TextBlockHandler::CreateHandler(mobile->GetSocket(), std::bind(&CMDPaste::TextInput, this, std::placeholders::_1, std::placeholders::_2, (void*)mobile), lines))
-        {
-            mobile->Message(MSG_ERROR, "Could not create editor handler.");
-            return false;
-        }
-    return true;
-}
-void CMDPaste::TextInput(Socket* sock, std::vector<std::string>* lines, void* args)
-{
-    std::stringstream st;
-    Player* mobile = (Player*)args;
-    Room* location = (Room*)mobile->GetLocation();
-
-    st << "Paste from ";
-    st << Capitalize(mobile->GetName());
-    st << " of ";
-    st << lines->size();
-    st << "lines.";
-    st << std::endl;
-    st << Repeat("-", 80);
-    for (auto it: *lines)
-        {
-            st << it << std::endl;
-        }
-    st << Repeat("-", 80);
-
-    location->TellAll(st.str());
-    mobile->GetSocket()->ClearInput();
-    mobile->Message(MSG_INFO, "Paste finished.");
-    delete lines;
 }

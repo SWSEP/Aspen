@@ -102,8 +102,23 @@ public:
 class CMDRcreate :public Command
 {
 public:
-    CMDRcreate();
-    BOOL Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd);
+	CMDRcreate();
+	BOOL Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd);
 };
 
+class CMDAddTile :public Command
+{
+public:
+	CMDAddTile();
+	//void Syntax(Player* mobile, int subcmd = 0) const;
+	BOOL Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd);
+};
+
+class CMDDeleteTile :public Command
+{
+public:
+	CMDDeleteTile();
+	//void Syntax(Player* mobile, int subcmd = 0) const;
+	BOOL Execute(const std::string &verb, Player* mobile, std::vector<std::string> &args, int subcmd);
+};
 #endif

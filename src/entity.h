@@ -1,7 +1,7 @@
 /*
 *This comprises our game objects.
 */
-#pragma once
+
 #ifndef ENTITY_H
 #define ENTITY_H
 #include <tinyxml.h>
@@ -21,10 +21,12 @@
 #include "objectContainer.h"
 
 class Room;
+class RoomTile;
 class Entity:public ObjectContainer
 {
 protected:
     ObjectContainer* _location;
+	RoomTile*  _tile;
     StaticObject* _parent;
     Uuid _uuid;
     std::string _short;
@@ -35,6 +37,8 @@ public:
     virtual std::string GetShort() const;
     virtual void SetShort(const std::string &s);
 
+	RoomTile* GetTile();
+	void SetTile(RoomTile* tile);
     /*
     *Returns the location of this object.
     *Return: A pointer to the entity in which this object is located, or NULL if the object does not have  a parent location.
@@ -50,7 +54,7 @@ public:
     *Param: [in] the destination where the object needs to go.
     *Return: true on success, false on failure.
     */
-    virtual BOOL MoveTo(ObjectContainer* targ);
+    virtual BOOL MoveTo(RoomTile* targ);
     /*
         *Called when an object leaves another object.
         *Param: [in] The object that is being removed.
@@ -74,6 +78,7 @@ public:
     */
     virtual std::string Identify(Player* mob);
     virtual BOOL IsObject() const;
+	virtual void Copy(Entity* obj);
 };
 
 bool InitializeEntityOlcs();

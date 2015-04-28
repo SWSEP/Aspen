@@ -2,6 +2,7 @@
 #include "event.h"
 #include "delayedEvent.h"
 #include "world.h"
+#include "room.h"
 #include <tinyxml.h>
 
 Living::Living()
@@ -17,6 +18,27 @@ Living::~Living()
 
 void Living::EnterGame()
 {
+	World* world = World::GetPtr();
+	ObjectManager* omanager = world->GetObjectManager();
+	Room* location = nullptr;
+	location = (Room*)GetLocation();
+	if (location == nullptr)
+	{
+		location = omanager->GetRoom(ROOM_START);
+		SetTile(location->GetFirstAvailable());
+	}
+	
+
+	if (GetTile())
+	{
+		MoveTo(GetTile());
+	}
+	else
+	{
+		SetTile(location->GetFirstAvailable());
+		MoveTo(GetTile());
+	}
+
 }
 void Living::LeaveGame()
 {
@@ -91,4 +113,24 @@ void Living::Deserialize(TiXmlElement* root)
     _gender = (Gender)temp;
     root->Attribute("level", &_level);
     Entity::Deserialize(root->FirstChild("entity")->ToElement());
+}
+
+void Living::Copy(Living* obj)
+{
+	std::vector<Attribute*>::iterator it, itEnd;
+
+	BaseObject::Copy(obj);
+	Entity::Copy(obj);
+	SetLevel(obj->GetLevel());
+	SetGender(obj->GetGender());
+
+	if (!_attributes.empty())
+	{
+		itEnd = obj->_attributes.end();
+		for (it = obj->_attributes.begin(); it != itEnd; ++it)
+		{
+			AddAttribute((*it));
+		}
+	}
+
 }

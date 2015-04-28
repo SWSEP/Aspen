@@ -3,7 +3,6 @@
 #include "olcGroup.h"
 #include "world.h"
 #include "olcManager.h"
-
 Npc::Npc()
 {
 }
@@ -24,18 +23,21 @@ BOOL Npc::IsNpc() const
 {
     return true;
 }
-void Npc::Copy(BaseObject* obj) const
+void Npc::Copy(Npc* obj)	
 {
-    BaseObject::Copy(obj);
+	obj->BaseObject::Copy(this); //Sorreassean pass the object being copied to into that function. Haven't changed yet.
+	Entity::Copy(obj);
+	Living::Copy(obj);
+	
 }
 
 BOOL InitializeNPCOlcs()
 {
-    World* world = World::GetPtr();
-    OlcManager* omanager = world->GetOlcManager();
-    OlcGroup* ngroup = new OlcGroup();
+	World* world = World::GetPtr();
+	OlcManager* omanager = world->GetOlcManager();
+	OlcGroup* ngroup = new OlcGroup();
 
-    ngroup->SetInheritance(omanager->GetGroup(OLCGROUP::Entity));
-    omanager->AddGroup(OLCGROUP::NPC, ngroup);
-    return true;
+	ngroup->SetInheritance(omanager->GetGroup(OLCGROUP::Entity));
+	omanager->AddGroup(OLCGROUP::NPC, ngroup);
+	return true;
 }

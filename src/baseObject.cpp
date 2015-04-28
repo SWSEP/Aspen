@@ -385,6 +385,10 @@ BOOL BaseObject::IsObject() const
     return false;
 }
 
+BOOL BaseObject::IsTile() const
+{
+	return false;
+}
 bool InitializeBaseObjectOlcs()
 {
     World* world = World::GetPtr();

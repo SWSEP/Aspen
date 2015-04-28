@@ -8,11 +8,15 @@
 #include "mud.h"
 #include "conf.h"
 #include "editor.h"
-
 //misc
+
+
 int tonum(const char* str);
 bool isnum(const char* str);
 BOOL FileExists(const std::string &name);
+ExitDirection StringToDirection(std::string direction);
+bool KeyToCoords(std::string key, int & x, int & y);
+
 /*
 *Checks to see if a directory exists.
 *Useful for creating empty dirs after a git checkout.
@@ -71,11 +75,13 @@ std::string Explode(std::vector <std::string> &parts, const std::string &del = "
 std::string Explode(const std::vector<std::string>& parts, std::vector<std::string>::const_iterator it, const std::string &del = " ");
 std::string StripWhitespace(const std::string &str);
 void NumberToString(char* buffer, int number);
+bool FindInString(const std::string a, const std::string b);
 //bitfield manipulation
 FLAG BitSet(FLAG flag,int pos);
 FLAG BitClear(FLAG flag,int pos);
 BOOL BitIsSet(FLAG flag,int pos);
 std::string GenerateUuid();
+
 //minmax
 template <typename T>
 inline T Min(const T a,const T b)
@@ -169,7 +175,10 @@ public:
     BOOL operator ==(const point &p);
     point& operator =(point &p);
 };
-
+/*Takes the coordinates passed in and returns a new point of coordinates based on the direction
+eg. point(0,0,1) and ExitDirection::north are passed in. This function will return (0,1,1) because that is
+the coordinate north of it.*/
+point GetDirectionCoords(ExitDirection direction, point coords);
 int RandomPercent();
 int RandomRange(int bottom, int top);
 bool iequals(const std::string& a, const std::string& b);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <ctime>
 #include <ctype.h>
+#include <algorithm>
 #include <cctype>
 #include <cstdlib>
 #include <cmath>
@@ -19,6 +20,10 @@
 #include "utils.h"
 #include "editor.h"
 #include "uuid.h"
+#include "match.h"
+#include "roomtile.h"
+
+
 
 int tonum(const char* str)
 {
@@ -40,16 +45,16 @@ int tonum(const char* str)
 
 bool isnum(const char* str)
 {
-    int num = 0;
-    try
-        {
-            num = tonum(str);
-        }
-    catch (std::bad_cast e)
-        {
-            return false;
-        }
-    return true;
+	int num = 0;
+	try
+	{
+		num = tonum(str);
+	}
+	catch (std::bad_cast e)
+	{
+		return false;
+	}
+	return true;
 }
 BOOL FileExists(const std::string &name)
 {
@@ -61,6 +66,138 @@ BOOL FileExists(const std::string &name)
         }
     return false;
 }
+
+ExitDirection StringToDirection(std::string direction)
+{
+	if (FullMatch(direction, "north") || FullMatch(direction, "n"))
+	{
+		return ExitDirection::north;
+	}
+	if (FullMatch(direction, "south") || FullMatch(direction, "s"))
+	{
+		return ExitDirection::south;
+	}
+	if (FullMatch(direction, "east") || FullMatch(direction, "e"))
+	{
+		return ExitDirection::east;
+	}
+	if (FullMatch(direction, "west") || FullMatch(direction,"w"))
+	{
+		return ExitDirection::west;
+	}
+	if (FullMatch(direction, "northeast") || FullMatch(direction, "ne"))
+	{
+		return ExitDirection::northeast;
+	}
+	if (FullMatch(direction, "northwest") || FullMatch(direction, "nw"))
+	{
+		return ExitDirection::northwest;
+	}
+	if (FullMatch(direction, "southwest") || FullMatch(direction, "sw"))
+	{
+		return ExitDirection::southwest;
+	}
+	if (FullMatch(direction, "southeast") || FullMatch(direction, "se"))
+	{
+		return ExitDirection::southeast;
+	}
+	if (FullMatch(direction, "up") || FullMatch(direction, "u"))
+	{
+		return ExitDirection::up;
+	}
+	if (FullMatch(direction, "down") || FullMatch(direction, "d"))
+	{
+		return ExitDirection::down;
+	}
+	return ExitDirection::nowhere;
+}
+
+bool KeyToCoords(std::string key, int & x, int & y)
+{
+	std::string xkey, ykey;
+
+	if (key.empty())
+	{
+		return false;
+	}
+	xkey = key.substr(0, key.find("x"));
+	ykey = key.substr(key.find("x") + 1, std::string::npos);
+
+	if (!isnum(xkey.c_str()) || !isnum(ykey.c_str()))
+	{
+		return false;
+	}
+
+	x = std::stoi(xkey);
+	y = std::stoi(ykey);
+	return true; 
+}
+
+point GetDirectionCoords(ExitDirection direction, const point coords)
+{
+	point newcoords = point(coords.x, coords.y, coords.z);
+
+	if (direction == ExitDirection::nowhere)
+	{
+		return point(0, 0, 0);
+	}
+	if (direction == ExitDirection::north)
+	{
+		newcoords.y += 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::south)
+	{
+		newcoords.y -= 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::east)
+	{
+		newcoords.x += 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::west)
+	{
+		newcoords.x -= 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::southeast)
+	{
+		newcoords.x += 1;
+		newcoords.y -= 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::southwest)
+	{
+		newcoords.x -= 1;
+		newcoords.y -= 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::northeast)
+	{
+		newcoords.x += 1;
+		newcoords.y += 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::northwest)
+	{
+		newcoords.x -= 1;
+		newcoords.y += 1;
+	}
+	if (direction == ExitDirection::up)
+	{
+		newcoords.z += 1;
+		return newcoords;
+	}
+	if (direction == ExitDirection::down)
+	{
+		newcoords.z -= 1;
+		return newcoords;
+	}
+	return point(0, 0, 0);
+}
+
+
 bool DirectoryExists(const std::string& path)
 {
     struct stat info;
@@ -346,39 +483,39 @@ std::string Center(const std::string &str,const int width)
 
 std::string CenterLines(const std::string &str, const int width)
 {
-    const char *blankspace = " ";
-    std::string lines,temp, temp1;
-    int leftfiller;
-    int totalfiller;
+	const char *blankspace = " ";
+	std::string lines,temp, temp1;
+	int leftfiller;
+	int totalfiller;
+	
+	lines = str;
+	if (str.empty())
+	{
+		return str;
+	}
 
-    lines = str;
-    if (str.empty())
-        {
-            return str;
-        }
+	if ((int)str.length() < (width - (int)str.length()))
+	{
+		return Center(str, width);
+	}
+	std::string::iterator it = lines.begin() , itEnd = lines.end();
+	for (; it != itEnd; ++it)
+		{
+			temp1 += (*it);
+			if ( ((int)temp1.length()) >= width - ((int)temp1.length()) && (*it) == *blankspace)
+			{
+					temp += Center(temp1, width);
+					totalfiller = ((width - (int)temp1.length()) / 2);
+					leftfiller = (totalfiller / 2 ? totalfiller - 1 : totalfiller);
+					temp1.clear();
 
-    if ((int)str.length() < (width - (int)str.length()))
-        {
-            return Center(str, width);
-        }
-    std::string::iterator it = lines.begin() , itEnd = lines.end();
-    for (; it != itEnd; ++it)
-        {
-            temp1 += (*it);
-            if ( ((int)temp1.length()) >= width - ((int)temp1.length()) && (*it) == *blankspace)
-                {
-                    temp += Center(temp1, width);
-                    totalfiller = ((width - (int)temp1.length()) / 2);
-                    leftfiller = (totalfiller / 2 ? totalfiller - 1 : totalfiller);
-                    temp1.clear();
-
-                    continue;
-                }
-
-        }
-    temp += Repeat(" ", leftfiller);
-    temp += temp1;
-    return temp;
+					continue;
+		    }
+			
+	    }
+	temp += Repeat(" ", leftfiller);
+	temp += temp1;
+		return temp;
 }
 
 std::string Explode(std::vector <std::string> &parts, const std::string &del)
@@ -487,6 +624,43 @@ std::string Columnize(std::vector<std::string> *data, int cols, std::vector<std:
                 }
         }
     return (st.str());
+}
+
+bool FindInString(const std::string input, const std::string checking)
+{
+	if (input.empty() || checking.empty())
+	{
+		return false;
+	}
+
+	std::string a = input;
+	std::string b = checking;
+	int a_length, b_length, a_it, b_it;
+	
+	a_length = a.size();
+	b_length = b.size();
+
+	if (a_length > b_length)
+	{
+		return false;
+	}
+
+	for (a_it = 0; a_it <= a_length; ++a_it)
+	{
+		a[a_it] = toupper(a[a_it]);
+	}
+
+	for (b_it = 0; b_it <= b_length; ++b_it)
+	{
+		b[b_it] = toupper(b[b_it]);
+	}
+
+	if (b.find(a) != std::string::npos)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 int Percentage(int total, int count, int round)
@@ -754,7 +928,12 @@ int RandomRange(int bottom, int top)
     return generator();
 }
 
+bool case_insensitive_char_compare(char a, char b)
+{
+	return (toupper(a) == toupper(b));
+}
 bool iequals(const std::string& a, const std::string& b)
 {
-    return (strcasecmp(a.c_str(), b.c_str()) == 0? true:false);
+	return ((a.size() == b.size()) && std::equal(a.begin(), a.end(), b.begin(), case_insensitive_char_compare));
+    /*return (strcasecmp(a.c_str(), b.c_str()) == 0? true:false);*/
 }

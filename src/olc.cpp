@@ -117,8 +117,8 @@ bool ParseVnum(Player* mobile, std::string& arg, VNUM & num, std::string& comp, 
     if (dotpos == std::string::npos) //no component found
         {
 //check if we're parsing a room vnum and whether or not "here" was used.
-
-
+           
+ 
 //this has to be a vnum:
             try
                 {
@@ -126,15 +126,15 @@ bool ParseVnum(Player* mobile, std::string& arg, VNUM & num, std::string& comp, 
                     return true;
                 }
             catch (std::bad_cast e)
-                {
-                    if (inroom)
-                        {
-                            num = mobile->GetLocation()->GetOnum();
-                            return true;
-                        }
-
+			{
+				if (inroom)
+				{
+					num = mobile->GetLocation()->GetOnum();
+					return true;
+				}
+				
                     return false;
-                }
+            }
         }
 
 //there was a component attached.
@@ -174,7 +174,9 @@ static inline bool DoEdit(Player* mobile, void* obj, IOlcEntry* entry, const std
             return entry->HandleInput(mobile, (StaticObject*)obj, input);
 		case OlcEditType::Help:
 			return entry->HandleInput(mobile, (HelpEntry*)obj, input);
-        default:
+		case OlcEditType::RoomTile:
+			return entry->HandleInput(mobile, (RoomTile*)obj, input);
+		default:
             return false;
         }
 
@@ -188,7 +190,6 @@ bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::st
     std::string value;
     std::vector<std::string>::iterator it;
 
-<<<<<<< HEAD
 	if (isnum(args[0].c_str()))
 	{
 		if (args.size() == 1) //we only have object/object.component, show entries.
@@ -223,31 +224,6 @@ bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::st
 		}
 	}
 
-=======
-    if (isnum(args[0].c_str()))
-        {
-            if (args.size() == 1) //we only have object/object.component, show entries.
-                {
-                    ShowGroup(mobile, group);
-                    return true;
-                }
-        }
-    else if (args.empty())
-        {
-            ShowGroup(mobile, group);
-        }
-
-    if (!isnum(args[0].c_str()) && group->GetEntry(args[0]) != nullptr)
-        {
-            name = args[0];
-            entry = group->GetEntry(name);
-        }
-    else if (isnum(args[0].c_str()) && group->GetEntry(args[0]) == nullptr)
-        {
-            name = args[1];
-            entry = group->GetEntry(name);
-        }
->>>>>>> ce48c720a2aca39f5b39f426c0c3a4f4d59467d6
     if (entry == nullptr)
         {
             mobile->Message(MSG_ERROR, "That entry does not exist.");
@@ -255,7 +231,6 @@ bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::st
         }
 
     //if (args.size() == 2) //we hope this is an editor. Otherwise it fails.
-<<<<<<< HEAD
       //  {
             if (entry->GetInputType() == OLCDT::EDITOR)
                 {
@@ -267,54 +242,105 @@ bool HandleEntry(Player* mobile, void* obj, OlcGroup* group, std::vector<std::st
               //      return false;
                // }
         //}
-=======
-    //  {
-    if (entry->GetInputType() == OLCDT::EDITOR)
-        {
-            return DoEdit(mobile, obj, entry, "", OlcEditType::Room);
-        }
-    //    else
-    //      {
-    //        mobile->Message(MSG_ERROR, "Invalid syntax.");
-    //      return false;
-    // }
-    //}
->>>>>>> ce48c720a2aca39f5b39f426c0c3a4f4d59467d6
 
     if (args.size() >= 2) //we have input.
         {
             it = args.begin();
-            if (isnum(args[0].c_str()))
-                {
-                    advance(it, 2);
-                }
-            else
-                {
-                    advance(it, 1);
-                }
+			if (isnum(args[0].c_str()))
+			{
+				advance(it, 2);
+			}
+			else
+			{
+				advance(it, 1);
+			}
             value = Explode(args, it);
-<<<<<<< HEAD
             if( DoEdit(mobile, obj, entry, value, type) )
 			{
 				mobile->Message(MSG_INFO, "OK.");
+				return true;
 			}
-=======
-            if( DoEdit(mobile, obj, entry, value, OlcEditType::Room) )
-                {
-                    mobile->Message(MSG_INFO, "OK.");
-                }
->>>>>>> ce48c720a2aca39f5b39f426c0c3a4f4d59467d6
         }
 
 //we should never get here.
     return false;
 }
 
+bool HandleTileEntry(Player* mobile, OlcGroup* group, std::vector<std::string> &args, OlcEditType type)
+{
+
+	IOlcEntry* entry = nullptr;
+	RoomTile* obj = nullptr;
+	std::string name;
+	std::string value;
+
+	if (args[1].empty())
+	{
+		mobile->Message(MSG_ERROR, "redit tile <tile key> <field> <value>");
+		return false;
+	}
+
+	if (!mobile->GetTile()->GetParent()->TileExists(args[1]))
+	{
+		mobile->Message(MSG_ERROR, "That tile doesn't exist!");
+		return false;
+	}
+
+	obj = mobile->GetTile()->GetParent()->GetTile(args[1]);
+
+	if (!obj)
+	{
+		mobile->Message(MSG_ERROR, "That tile doesn't exist!");
+		return false;
+	}
+
+	if (args.size() < 3)
+	{
+		ShowGroup(mobile, group);
+		return false;
+	}
+
+	entry = group->GetEntry(args[2]);
+
+
+	if (!entry)
+	{
+		mobile->Message(MSG_ERROR, "That entry doesn't exist!");
+		return false;
+	}
+
+	if (FullMatch(entry->GetName(), "terrain") && args.size() < 4)
+	{
+		std::string terrains;
+		for (int x = 0; x != (int)TerrainType::MAX; ++x)
+		{
+			terrains += TerrainToString(TerrainList[x]) + " ";
+		}
+		
+		mobile->Message(MSG_INFO, "Terrain types: " + terrains);
+		return false;
+	}
+
+	if (FullMatch(entry->GetName(), "light") && args.size() < 4)
+	{
+		std::string lights;
+		lights += LightToString(LightLevel::LIGHT_DARK) + " " + LightToString(LightLevel::LIGHT_LOW) + " " + LightToString(LightLevel::LIGHT_NORMAL);
+		mobile->Message(MSG_INFO, "Light types: " + lights);
+		return false;
+	}
+	if (DoEdit(mobile, obj, entry, args[3], OlcEditType::RoomTile))
+	{
+		mobile->Message(MSG_INFO, "OK.");
+		return true;
+	}
+	return false;
+}
+
 CMDREdit::CMDREdit()
 {
     SetName("redit");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDREdit::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args, int subcmd)
 {
@@ -340,13 +366,24 @@ BOOL CMDREdit::Execute(const std::string &verb, Player* mobile,std::vector<std::
             mobile->Message(MSG_ERROR, "Invalid vnum.");
             return false;
         }
-
+	
     if (num < 1 || !zon->RoomExists(num))
         {
             mobile->Message(MSG_ERROR, "That vnum does not exist.");
             return false;
-        }
+        
+	    }
 
+	if (mobile->GetTile()->GetParent() && FullMatch(args[0], "tile"))
+	{
+		group = omanager->GetGroup(OLCGROUP::ROOMTILE);
+		if (!group)
+		{
+			mobile->Message(MSG_ERROR, "Could not retrieve OLC.");
+			return false;
+		}
+		return HandleTileEntry(mobile, group, args, OlcEditType::RoomTile);
+	}
     targ = objmanager->GetRoom(num);
     if (targ == nullptr)
         {
@@ -398,7 +435,7 @@ CMDMEdit::CMDMEdit()
 {
     SetName("medit");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDMEdit::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args, int subcmd)
 {
@@ -481,7 +518,7 @@ CMDOEdit::CMDOEdit()
 {
     SetName("oedit");
     SetAccess(RANK_BUILDER);
-    SetType(CommandType::Builder);
+	SetType(CommandType::Builder);
 }
 BOOL CMDOEdit::Execute(const std::string &verb, Player* mobile,std::vector<std::string> &args, int subcmd)
 {

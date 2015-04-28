@@ -47,6 +47,7 @@ World::World()
     _running = true;
     _chanid=1;
     _pmanager = new PlayerManager();
+	_objectManager = new ObjectManager();
     _server = nullptr;
     _motd = nullptr;
     _banner = nullptr;
@@ -70,6 +71,10 @@ World::World()
 }
 World::~World()
 {
+	if (_objectManager)
+	{
+		delete _objectManager;
+	}
     if (_pmanager)
         {
             delete _pmanager;
@@ -386,7 +391,7 @@ void World::Update()
         {
             zone->Update();
         }
-    _objectManager.Update();
+    _objectManager->Update();
     callouts->Update();
 
     _updates ++;
@@ -838,5 +843,5 @@ unsigned long long int World::GetCommandTime() const
 
 ObjectManager* World::GetObjectManager()
 {
-    return &_objectManager;
+    return _objectManager;
 }

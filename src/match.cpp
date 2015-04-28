@@ -25,11 +25,11 @@ bool FullMatch(const std::string& a, const std::string& b, bool icase)
 
 Entity* World::MatchKeyword(const std::string &name, Player* caller)
 {
-    if ((name=="me")||(name==caller->GetName()))
+    if ((name=="me")||(FullMatch(name,caller->GetName())))
         {
             return caller;
         }
-    if (name.length() < caller->GetName().length() && caller->GetName().substr(name.length()) == name)
+    if (name.length() < caller->GetName().length() && FindInString(name, caller->GetName()))
         {
             return caller;
         }
@@ -38,9 +38,10 @@ Entity* World::MatchKeyword(const std::string &name, Player* caller)
 
 Entity* World::MatchObject(const std::string &name,Player* caller)
 {
-    std::list<Entity*> *contents; //holds contents for the location and current caller.
+    std::list<Entity*>* contents; //holds contents for the location and current caller.
     std::list<Entity*>* val;
     std::list<Entity*>::iterator it, itEnd;
+	Room* room = NULL;
     Entity* obj = NULL;
 
     obj = MatchKeyword(name, caller);
@@ -49,12 +50,30 @@ Entity* World::MatchObject(const std::string &name,Player* caller)
             return obj;
         }
 
+	room = (Room*)caller->GetLocation();
     contents = new std::list<Entity*>();
-    val = caller->GetLocation()->GetContents();
-    contents->insert(contents->begin(), val->begin(), val->end());
+    val = room->GetContents();
+	
+	if (!val->empty())
+	{
+		contents->insert(contents->begin(), val->begin(), val->end());
+	}
+	
+	val->clear();
     val = caller->GetContents();
-    contents->insert(contents->begin(), val->begin(), val->end());
-    obj = MatchObjectInList(name, val);
+	
+	if (!val->empty())
+	{
+		contents->insert(contents->begin(), val->begin(), val->end());
+	}
+	
+	if (contents->empty())
+	{
+		delete contents;
+		return obj;
+	}
+
+	obj = MatchObjectInList(name, contents);
     delete contents;
     return obj;
 }
@@ -100,13 +119,13 @@ Entity* World::MatchObjectInList(const std::string &name, std::list<Entity*> *ol
                     obj = *it;
                     if (obj->GetName().length() < temp.length())   //we check for a partial match
                         {
-                            if (obj->GetName().substr(temp.length()) == temp)
+                            if (FullMatch(obj->GetName().substr(temp.length()), temp))
                                 {
                                     count++; //we found a match, increase the counter.
                                     continue;
                                 }
                         }
-                    if (obj->GetName() == temp)   //full match
+                    if (FullMatch(obj->GetName(), temp))   //full match
                         {
                             count++;
                             continue;
@@ -122,13 +141,13 @@ Entity* World::MatchObjectInList(const std::string &name, std::list<Entity*> *ol
                                     alias = (*ait);
                                     if (alias.length() < temp.length())   //we check for a partial match
                                         {
-                                            if (alias.substr(temp.length()) == temp)
+                                            if (FullMatch(alias.substr(temp.length()),temp))
                                                 {
                                                     count++; //we found a match, increase the counter.
                                                     continue;
                                                 }
                                         }
-                                    if (alias == temp)   //full match
+                                    if (FullMatch(alias,temp))   //full match
                                         {
                                             count++;
                                             continue;
@@ -154,12 +173,12 @@ Entity* World::MatchObjectInList(const std::string &name, std::list<Entity*> *ol
 
                     if (obj->GetName().length() < temp.length())   //we check for a partial match
                         {
-                            if (obj->GetName().substr(temp.length()) == temp)
+                            if (FullMatch(obj->GetName().substr(temp.length()),temp))
                                 {
                                     return obj;
                                 }
                         }
-                    if (obj->GetName() == temp)   //full match
+                    if (FullMatch(obj->GetName(), temp))   //full match
                         {
                             return obj;
                         }
@@ -174,12 +193,12 @@ Entity* World::MatchObjectInList(const std::string &name, std::list<Entity*> *ol
                                     alias = *ait;
                                     if (alias.length() < temp.length())   //we check for a partial match
                                         {
-                                            if (alias.substr(temp.length()) == temp)
+                                            if (FullMatch(alias.substr(temp.length()),temp))
                                                 {
                                                     return obj;
                                                 }
                                         }
-                                    if (alias == temp)   //full match
+                                    if (FullMatch(alias,temp))   //full match
                                         {
                                             return obj;
                                         }
@@ -232,13 +251,13 @@ Entity* World::MatchObjectInVector(const std::string &name, std::vector<Entity*>
                     obj = *it;
                     if (obj->GetName().length() < temp.length())   //we check for a partial match
                         {
-                            if (obj->GetName().substr(temp.length()) == temp)
+                            if (FullMatch(obj->GetName().substr(temp.length()), temp))
                                 {
                                     count++; //we found a match, increase the counter.
                                     continue;
                                 }
                         }
-                    if (obj->GetName() == temp)   //full match
+                    if (FullMatch(obj->GetName(),temp))   //full match
                         {
                             count++;
                             continue;
@@ -254,13 +273,13 @@ Entity* World::MatchObjectInVector(const std::string &name, std::vector<Entity*>
                                     alias = (*ait);
                                     if (alias.length() < temp.length())   //we check for a partial match
                                         {
-                                            if (alias.substr(temp.length()) == temp)
+                                            if (FullMatch(alias.substr(temp.length()), temp))
                                                 {
                                                     count++; //we found a match, increase the counter.
                                                     continue;
                                                 }
                                         }
-                                    if (alias == temp)   //full match
+                                    if (FullMatch(alias, temp))   //full match
                                         {
                                             count++;
                                             continue;
@@ -286,12 +305,12 @@ Entity* World::MatchObjectInVector(const std::string &name, std::vector<Entity*>
 
                     if (obj->GetName().length() < temp.length())   //we check for a partial match
                         {
-                            if (obj->GetName().substr(temp.length()) == temp)
+                            if (FullMatch(obj->GetName().substr(temp.length()),temp))
                                 {
                                     return obj;
                                 }
                         }
-                    if (obj->GetName() == temp)   //full match
+                    if (FullMatch(obj->GetName(),temp))   //full match
                         {
                             return obj;
                         }
@@ -306,12 +325,12 @@ Entity* World::MatchObjectInVector(const std::string &name, std::vector<Entity*>
                                     alias = *ait;
                                     if (alias.length() < temp.length())   //we check for a partial match
                                         {
-                                            if (alias.substr(temp.length()) == temp)
+                                            if (FullMatch(alias.substr(temp.length()), temp))
                                                 {
                                                     return obj;
                                                 }
                                         }
-                                    if (alias == temp)   //full match
+                                    if (FullMatch(alias,temp))   //full match
                                         {
                                             return obj;
                                         }
@@ -321,4 +340,110 @@ Entity* World::MatchObjectInVector(const std::string &name, std::vector<Entity*>
         }
 
     return NULL;
+}
+
+Living* World::MatchMobile(const std::string &name, Player* caller)
+{
+	std::list<Living*>* contents; //holds contents for the location and current caller.
+	std::list<Living*>* val;
+	std::list<Living*>::iterator it, itEnd;
+	Room* room = NULL;
+	Living* mobile = NULL;
+
+	mobile = (Living*)MatchKeyword(name, caller);
+	if (mobile)
+	{
+		return mobile;
+	}
+
+	room = (Room*)caller->GetLocation();
+	contents = new std::list<Living*>();
+	val = room->GetMobiles();
+	
+	if (!val->empty())
+	{
+		itEnd = val->end();
+	
+		for (it = val->begin(); it != itEnd; ++it)
+		{
+			
+			if ((*it) && (*it) != caller)
+			{
+				contents->push_back((*it));
+			}
+		}
+		
+	}
+	delete val;
+	/*val = caller->GetContents();
+
+	if (!val->empty())
+	{
+		contents->insert(contents->begin(), val->begin(), val->end());
+	}*/
+
+	if (contents->empty())
+	{
+		delete contents;
+		return mobile;
+	}
+	
+	mobile = MatchMobileInList(name, contents);
+	delete contents;
+	return mobile;
+}
+
+Living* World::MatchMobileInList(const std::string &name, std::list<Living*>* olist)
+{
+	std::list<Living*>::iterator it, itEnd;
+	std::string sub; //used for holding the subpart of the number.
+	std::string temp; //used for holding a temp copy of the name after it is trimmed.
+	std::vector<std::string>::iterator ait, aitEnd;
+	int number = 0; //used for holding the actual number.
+	int count = 0; //used for holding the number of objects found.
+	size_t marker; //used for holding the position of the '.'.
+	std::map<int, Living*> results;
+
+
+	//we check to see if the string has a '.', if so, there's a number.
+	marker = name.find_first_of(".");
+	//check to see if it is 1) at the beginning, or 2) at the end.
+
+
+	if (marker != std::string::npos)   //we found something.
+	{
+		sub.assign(name, 0, marker); //the subnumber.
+		temp = name.substr(marker + 1); //trim off the x. bit
+		number = tonum(sub.c_str());
+		if (number == 0)
+		{
+			return NULL;
+		}
+
+		itEnd = olist->end();
+
+		for (it = olist->begin(); it != itEnd; ++it)
+		{
+			if (FindInString(temp, (*it)->GetName()) || FindInString(temp, (*it)->GetShort()))
+			{
+				count++;
+				results[count] = (*it);
+			}
+		}
+		return results[number];
+	}
+	else
+	{
+		itEnd = olist->end();
+		temp = name;
+		for (it = olist->begin(); it != itEnd; ++it)
+		{
+			if (FindInString(temp, (*it)->GetName()) || FindInString(temp, (*it)->GetShort()))
+			{
+				return (*it);
+			}
+		}
+	}
+	results.clear();
+	return nullptr;
 }

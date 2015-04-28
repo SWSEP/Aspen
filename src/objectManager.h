@@ -1,10 +1,13 @@
 #pragma once
+#ifndef OBJECTMANAGER_H
+#define OBJECTMANAGER_H
 #include "mud.h"
 #include "conf.h"
 #include "baseObject.h"
 #include "staticObject.h"
 #include "entity.h"
 #include "npc.h"
+#include "world.h"
 #include "room.h"
 
 /**
@@ -90,3 +93,4 @@ public:
     bool NpcExists(VNUM num);
     Npc*  GetNpc(VNUM num);
 };
+#endif

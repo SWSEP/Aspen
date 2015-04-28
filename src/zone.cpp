@@ -24,6 +24,8 @@ Zone::Zone()
 {
     _vnumrange.min = 0;
     _vnumrange.max = 0;
+    _goldbonus = 0;
+    _expbonus = 0;
     _resetfreq = 240;
     _resetmsg = "With a pop, the area resets around you.";
     _lastreset=time(NULL);
@@ -310,15 +312,16 @@ Npc* Zone::CreateNpc(VNUM num, Room* origin)
         }
 
     ret = new Npc();
-    templ->Copy(ret);
+	ret->Copy(templ);
     ret->SetOrigin(origin);
+	ret->SetTile(origin->GetFirstAvailable());
     ret->EnterGame();
     ret->Initialize();
-    if (!ret->MoveTo(origin))
+   /* if (!ret->MoveTo(origin->GetFirstAvailable()))
         {
             delete ret;
             return nullptr;
-        }
+        }*/
 
     return ret;
 }
@@ -378,6 +381,8 @@ void Zone::Serialize(TiXmlElement* root)
     root->SetAttribute("opened", _opened);
     root->SetAttribute("resetmsg", _resetmsg.c_str());
     root->SetAttribute("resetfreq", _resetfreq);
+    root->SetAttribute("expbonus", _expbonus);
+    root->SetAttribute("goldbonus", _goldbonus);
     root->SetAttribute("minvnum", _vnumrange.min);
     root->SetAttribute("maxvnum", _vnumrange.max);
 
@@ -399,6 +404,8 @@ void Zone::Deserialize(TiXmlElement* zone)
     _opened = u;
     _resetmsg = zone->Attribute("resetmsg");
     zone->Attribute("resetfreq", &_resetfreq);
+    zone->Attribute("expbonus", &_expbonus);
+    zone->Attribute("goldbonus", &_goldbonus);
     zone->Attribute("minvnum", &(_vnumrange.min));
     zone->Attribute("maxvnum", &(_vnumrange.max));
 
@@ -461,6 +468,7 @@ BOOL InitializeZones()
             Room* room = zone->AddRoom(ROOM_START);
             room->SetName("A blank room");
             room->SetCoord(p);
+			room->CreateTileMap(1, 1);
             if (!Zone::SaveZones())
                 {
                     return false;
@@ -517,6 +525,7 @@ BOOL Zone::SaveZone()
 	path = AREA_DIR + GetName();
 	Lower(path);
 	doc.SaveFile(path.c_str());
+	return true;
 }
 BOOL Zone::LoadZones()
 {

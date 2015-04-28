@@ -1,4 +1,4 @@
-#pragma once
+
 #ifndef BASE_SOCKET_H
 #define BASE_SOCKET_H
 #include "mud.h"

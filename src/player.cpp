@@ -318,20 +318,11 @@ void Player::EnterGame()
 void Player::EnterGame(BOOL quiet)
 {
     World* world = World::GetPtr();
-    ObjectManager* omanager = world->GetObjectManager();
     ObjectContainer* location = nullptr;
-    location = GetLocation();
-    if (location == nullptr)
-        {
-            MoveTo(omanager->GetRoom(ROOM_START));
-            location = GetLocation();
-        }
-    else
-        {
-            location->ObjectEnter(this);
-        }
-
+    
     Living::EnterGame();
+	location = GetLocation();
+
 //add the player to the users list:
     world->GetPlayerManager()->AddPlayer(this);
 //if there were password attempts, tell the player.
@@ -377,7 +368,7 @@ void Player::Write(const std::string &text) const
 
 void Player::Message(const MessageType type,const std::string &data) const
 {
-    Write((*_messages)[type]+data+C_NORMAL+"\n");
+    Write((*_messages)[type]+data+C_RESET+"\n");
 }
 
 Socket* Player::GetSocket()

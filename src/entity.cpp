@@ -22,6 +22,7 @@ Entity::Entity()
 {
     _location=NULL;
     _parent = NULL;
+	_tile = NULL;
     events.RegisterEvent("PostLook", new Event());
     events.RegisterEvent("PreLook",new Event());
 }
@@ -38,7 +39,15 @@ void Entity::SetShort(const std::string &s)
     _short = s;
 }
 
+RoomTile* Entity::GetTile()
+{
+	return _tile;
+}
 
+void Entity::SetTile(RoomTile* tile)
+{
+	_tile = tile;
+}
 ObjectContainer* Entity::GetLocation() const
 {
     return _location;
@@ -65,6 +74,7 @@ void Entity::Serialize(TiXmlElement* root)
 
     ent->SetAttribute("location", (_location?_location->GetOnum():0));
     ent->SetAttribute("short", _short.c_str());
+	ent->SetAttribute("tile", (_tile?_tile->GetKey().c_str():" "));
     root->LinkEndChild(ent);
 }
 void Entity::Deserialize(TiXmlElement* root)
@@ -72,10 +82,13 @@ void Entity::Deserialize(TiXmlElement* root)
     World* world = World::GetPtr();
     ObjectManager* omanager = world->GetObjectManager();
     int loc;
+	std::string tilekey;
 
     root->Attribute("location", &loc);
     _uuid.Deserialize(root);
     _short = root->Attribute("short");
+
+
     if (!loc)
         {
             _location=NULL;
@@ -83,7 +96,31 @@ void Entity::Deserialize(TiXmlElement* root)
     else
         {
             _location=omanager->GetRoom(loc);
+			
         }
+
+	if (_location)
+	{
+		if (root->Attribute("tile"))
+		{
+			tilekey = root->Attribute("tile");
+		}
+		else
+		{
+			Room* location = (Room*)_location;
+			tilekey = location->GetFirstAvailable()->GetKey();
+		}
+
+		if (_location->IsRoom())
+		{
+			Room* room = (Room*)_location;
+			_tile = room->GetTile(tilekey);
+		}
+		else
+		{
+			_tile = nullptr;
+		}
+	}
 
 //and now we notify everything that an object was loaded:
     world->events.CallEvent("ObjectLoaded", NULL, this);
@@ -96,16 +133,23 @@ void Entity::Deserialize(TiXmlElement* root)
 #endif
 }
 
-BOOL Entity::MoveTo(ObjectContainer* targ)
+BOOL Entity::MoveTo(RoomTile* targ)
 {
-    if (targ->CanReceive(this))
+
+	if (targ->CanReceive(this))
         {
-            if (_location)
-                {
-                    _location->ObjectLeave(this);
-                }
-            _location=targ;
-            targ->ObjectEnter(this);
+			if (!_tile)
+			{
+				 
+				SetTile(targ); 
+			}
+			else
+            {
+                _tile->ObjectLeave(this);
+            }
+            _tile=targ;
+			_location = _tile->GetParent();
+            _tile->ObjectEnter(this);
             return true;
         }
     return false;
@@ -144,7 +188,11 @@ BOOL Entity::IsObject() const
 {
     return true;
 }
-
+void Entity::Copy(Entity* obj) 
+{
+	BaseObject::Copy(obj);
+	SetShort(obj->GetShort());
+}
 bool InitializeEntityOlcs()
 {
     World* world = World::GetPtr();

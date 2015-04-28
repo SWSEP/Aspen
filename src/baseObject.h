@@ -2,7 +2,6 @@
 *The base object is required for holding information about each object.
 *Entity is the actual in-game object.
 */
-#pragma once
 #ifndef BASE_OBJECT_H
 #define BASE_OBJECT_H
 #include <tinyxml.h>
@@ -114,6 +113,7 @@ public:
     virtual BOOL IsRoom() const;
     virtual BOOL IsNpc() const;
     virtual BOOL IsObject() const;
+	virtual BOOL IsTile() const;
 };
 
 bool InitializeBaseObjectOlcs();

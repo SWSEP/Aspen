@@ -5,6 +5,7 @@
 #pragma once
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <string>
 //Mud configuration constants
 #define RDNS
 #define DEFAULT_PORT 6666 //our default port: The mud will use this, if the port isn't provided as an argument.
@@ -89,9 +90,10 @@ enum LOG_LEVEL {INFORM,WARN,ERR,CRIT,SCRIPT, PLAYER, CONNECTION};
 enum MessageType {MSG_NORMAL, MSG_ERROR,MSG_INFO,MSG_CRITICAL,MSG_CHANNEL,MSG_LIST};
 
 //terrain types:
-enum class TERRAIN
+enum class TerrainType
 {
-    OCEAN, UNDERWATER, AIR, PLANE, DESERT, UNDERGROUND, SWAMP, HILLS, MOUNTAIN, FOREST, LIGHTFOREST, CITY, INSIDE, MAX
+    OCEAN, UNDERWATER, AIR, PLAINS, DESERT, UNDERGROUND, SWAMP, HILLS, MOUNTAIN, FOREST, LIGHTFOREST, CITY, INSIDE, DEFAULT,
+	MAX
 };
 //positions:
 enum class POSITION
@@ -114,6 +116,9 @@ enum class POSITION
 #define DIR_UP 9
 #define DIR_DOWN 10
 enum ExitDirection {nowhere, north, south, east, west, northeast, northwest, southeast, southwest, up, down};
+extern std::string DirectionString[];
+extern std::string OppositeDirectionString[];
+
 //colors:
 #define C_NORMAL "\x1B[0m"
 #define C_RED "\x1B[31m"
@@ -140,6 +145,7 @@ enum ExitDirection {nowhere, north, south, east, west, northeast, northwest, sou
 #define MODULE_SCRIPTING
 #define MODULE_SYSLOG
 #define MODULE_HELP
+#define MODULE_BOARD
 #define OLC
 //Leave this commented if you want the code to check for files and create them if they do not exist. see socials.cpp and zone.cpp for examples.
 //#define NO_INIT_DEFAULTS

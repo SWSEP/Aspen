@@ -15,21 +15,38 @@
 #include "event.h"
 #include "zone.h"
 #include "utils.h"
+#include "roomtile.h"
 #include "objectContainer.h"
+#include <map>
 
 EVENT(ROOM_POST_LOOK);
 
-class Zone;
+class RoomTile;
+/*TileMap is designed to take pull a RoomTile out by a std::string. This string is a combination of the x,y coordinates separated by an x. eg: 2x1
+I have added an operator for a tilemap to allow access to the map using the [][] operators. This will allow interaction as if it's a 2 dimensional
+array. */
+typedef std::map<std::string, RoomTile* > RoomTileMap;
 
+
+class TileMap : public RoomTileMap
+{
+public:
+	int xsize, ysize;
+	RoomTile* get(point coords); 
+	void add(RoomTile *tile);
+	void remove(RoomTile *tile);
+};
 class Room:public ObjectContainer
 {
     std::list <Living*> _mobiles;
     std::vector<Exit*> _exits;
     FLAG _rflag;
     point _coord;
+	TileMap* _roomtiles;
 public:
     Commandable commands;
     Room();
+	Room(int, int);
     virtual ~Room();
     /*
     *Adds the specified exit.
@@ -94,10 +111,26 @@ public:
 //serialization
     virtual void Serialize(TiXmlElement* root);
     virtual void Deserialize(TiXmlElement* node);
-    void ObjectEnter(Entity* obj);
+	
+	void ObjectEnter(Entity* obj);
     void ObjectLeave(Entity* obj);
     std::string TellObviousExits();
     EVENT(PostLook);
+	bool TileExists(std::string tilekey);
+	bool TileExists(point coords);
+	void AddTile(RoomTile* tile);
+	void RemoveTile(point coords);
+	void RemoveTile(std::string key);
+	std::string ShowTileMap();
+	void CreateTileMap(int xmax, int ymax);
+	void DeleteTileMap();
+	RoomTile* GetTile(point coords);
+	RoomTile* GetTile(std::string key);
+	TileMap* GetTileMap() const;
+	void FormatTileMap(); // This is to set all adjacents to the respective tiles in the tilemap.
+	RoomTile* GetFirstAvailable(); //Returns the first available tile, in case a player doesn't have a tile set;
+	virtual std::list<Entity*>* GetContents();
+	virtual std::list<Living*>* GetMobiles(); //You MUST 'delete' anything you assign to this.
 };
 
 bool InitializeRoomOlcs();

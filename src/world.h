@@ -29,6 +29,8 @@ typedef std::function<std::string (Player*)> PROMPTCB;
 This class is responsible for managing collections of objects (users, zones etc) as well as holding references to manager objects.
 All of the core functions will be kept within this class, and tasks delegated to other classes as needed for organizational purposes.
 */
+class ObjectManager;
+
 class World
 {
     static World* _ptr;
@@ -41,7 +43,7 @@ class World
     std::map<std::string, ISerializable*> _state;
     std::vector<Zone*> _zones;
     OlcManager _olcs;
-    ObjectManager _objectManager;
+    ObjectManager* _objectManager;
     PlayerManager* _pmanager;
     int _chanid;
     unsigned long long int _updates;
@@ -222,6 +224,9 @@ public:
     *Return: An std::pair containing the return code and a pointer to the object.
     */
     Entity* MatchObjectInVector(const std::string &name, std::vector<Entity*> *olist);
+	
+	Living* MatchMobile(const std::string &name, Player* caller);
+	Living* MatchMobileInList(const std::string &name, std::list<Living*> *mlist);
     /*
     *Adds a zone to the list of zones.
     *Param: [in] a pointer to the zone to add.

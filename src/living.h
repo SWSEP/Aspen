@@ -15,6 +15,7 @@
 #include "attribute.h"
 #include "affect.h"
 
+
 struct _aff_comp
 {
     bool operator()(Affect* a, Affect* b)
@@ -68,5 +69,6 @@ public:
     bool RemoveAttribute(AttributeType type, int id);
     virtual void Serialize(TiXmlElement* root);
     virtual void Deserialize(TiXmlElement* root);
+	virtual void Copy(Living* obj);
 };
 #endif

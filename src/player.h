@@ -2,7 +2,7 @@
 *player.h
 *Contains the main player object prototypes.
 */
-#pragma once
+
 #include <string>
 #include <map>
 #ifndef PLAYER_H

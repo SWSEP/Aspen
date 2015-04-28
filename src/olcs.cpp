@@ -10,6 +10,10 @@
 
 BOOL InitializeOlcs()
 {
+	if (!InitializeRoomTileOlcs())
+	{
+		return false;
+	}
 	if (!InitializeHelpOlcs())
 	{
 		return false;
@@ -30,9 +34,9 @@ BOOL InitializeOlcs()
         {
             return false;
         }
-    if (!InitializeNPCOlcs())
-        {
-            return false;
-        }
+	if (!InitializeNPCOlcs())
+	{
+		return false;
+	}
     return true;
 }
